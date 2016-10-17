@@ -32,3 +32,11 @@ Add two custom options to CMake to build the program in release mode (with full 
 cmake -DCMAKE_BUILD_TYPE=Release .
 make
 ```
+
+## Install
+
+This command might require `sudo`, but check your system configuration. For example, it installs to `/usr/local/` by default, which is user-writable on OSX if you use Homebrew, so not requiring admin privileges.
+
+```
+make install
+```
