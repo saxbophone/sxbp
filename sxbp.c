@@ -268,7 +268,9 @@ int main(int argc, char* argv[]) {
     // show help
     struct arg_lit* help = arg_lit0("h","help", "show this help and exit");
     // show version
-    struct arg_lit* version = arg_lit0("v", "version", "show version and exit");
+    struct arg_lit* version = arg_lit0(
+        "v", "version", "show version of program and library, then exit"
+    );
     // flag for if we want to prepare a spiral
     struct arg_lit* prepare = arg_lit0(
         "p", "prepare",
@@ -329,7 +331,10 @@ int main(int argc, char* argv[]) {
     int count_errors = arg_parse(argc, argv, argtable);
     // if we asked for the version, show it
     if(version->count > 0) {
-        printf("%s %s\n", program_name, SXBP_VERSION_STRING);
+        printf(
+            "%s %s (using libsaxbospiral %s)\n",
+            program_name, SXBP_VERSION_STRING, LIB_SXBP_VERSION.string
+        );
         status_code = 0;
     }
     // if parser returned any errors, display them and set return code to 1
