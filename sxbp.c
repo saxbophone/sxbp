@@ -79,15 +79,15 @@ static bool buffer_to_file(sxbp_buffer_t* buffer, FILE* file_handle) {
  */
 static const char* error_code_string(sxbp_diagnostic_t error) {
     switch(error) {
-        case OPERATION_FAIL:
+        case SXBP_OPERATION_FAIL:
             return "OPERATION_FAIL";
-        case MALLOC_REFUSED:
+        case SXBP_MALLOC_REFUSED:
             return "MALLOC_REFUSED";
-        case IMPOSSIBLE_CONDITION:
+        case SXBP_IMPOSSIBLE_CONDITION:
             return "IMPOSSIBLE_CONDITION";
-        case OPERATION_OK:
+        case SXBP_OPERATION_OK:
             return "OPERATION_OK (NO ERROR)";
-        case STATE_UNKNOWN:
+        case SXBP_STATE_UNKNOWN:
         default:
             return "UNKNOWN ERROR";
     }
@@ -99,15 +99,15 @@ static const char* error_code_string(sxbp_diagnostic_t error) {
  */
 static const char* file_error_code_string(sxbp_deserialise_diagnostic_t error) {
     switch(error) {
-        case DESERIALISE_OK:
+        case SXBP_DESERIALISE_OK:
             return "DESERIALISE_OK (NO ERROR)";
-        case DESERIALISE_BAD_HEADER_SIZE:
+        case SXBP_DESERIALISE_BAD_HEADER_SIZE:
             return "DESERIALISE_BAD_HEADER_SIZE";
-        case DESERIALISE_BAD_MAGIC_NUMBER:
+        case SXBP_DESERIALISE_BAD_MAGIC_NUMBER:
             return "DESERIALISE_BAD_MAGIC_NUMBER";
-        case DESERIALISE_BAD_VERSION:
+        case SXBP_DESERIALISE_BAD_VERSION:
             return "DESERIALISE_BAD_VERSION";
-        case DESERIALISE_BAD_DATA_SIZE:
+        case SXBP_DESERIALISE_BAD_DATA_SIZE:
             return "DESERIALISE_BAD_DATA_SIZE";
         default:
             return "UNKNOWN ERROR";
@@ -120,7 +120,7 @@ static const char* file_error_code_string(sxbp_deserialise_diagnostic_t error) {
  */
 static bool handle_error(sxbp_status_t result) {
     // if we had problems, print to stderr and return true
-    if(result.diagnostic != OPERATION_OK) {
+    if(result.diagnostic != SXBP_OPERATION_OK) {
         fprintf(
             stderr,
             "Error Code: %s\n", error_code_string(result.diagnostic)
@@ -184,7 +184,7 @@ static bool run(
         // otherwise, we must load spiral from file
         sxbp_serialise_result_t result = sxbp_load_spiral(input_buffer, &spiral);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != OPERATION_OK) {
+        if(result.status.diagnostic != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
@@ -233,7 +233,7 @@ static bool run(
         // otherwise, we must simply dump the spiral as-is
         sxbp_serialise_result_t result = sxbp_dump_spiral(spiral, &output_buffer);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != OPERATION_OK) {
+        if(result.status.diagnostic != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
