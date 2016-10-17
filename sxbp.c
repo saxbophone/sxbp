@@ -331,7 +331,7 @@ int main(int argc, char* argv[]) {
     int count_errors = arg_parse(argc, argv, argtable);
     // if we asked for the version, show it
     if(version->count > 0) {
-        printf("%s %s\n", program_name, SAXBOSPIRAL_VERSION_STRING);
+        printf("%s %s\n", program_name, SXBP_VERSION_STRING);
         status_code = 0;
     }
     // if parser returned any errors, display them and set return code to 1
