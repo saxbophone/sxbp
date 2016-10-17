@@ -67,11 +67,11 @@ if(COMMAND_INTERPRETER)
     add_test(
         NAME func_test COMMAND ${COMMAND_INTERPRETER}
         # each script needs to know the path to the sxp cli executable
-        "func_test.sh" sxbp "saxbospiral v${SXBP_VERSION_STRING}"
+        "func_test.sh" sxbp "sxbp v${SXBP_VERSION_STRING}"
     )
     add_custom_target(
         build_logo ${COMMAND_INTERPRETER}
-        "build_logo.sh" sxbp "saxbospiral.png" "saxbospiral v${SXBP_VERSION_STRING}"
+        "build_logo.sh" sxbp "sxbp.png" "sxbp v${SXBP_VERSION_STRING}"
     )
 else()
     # warn about skipping of functional test script
