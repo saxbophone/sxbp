@@ -11,15 +11,13 @@
 #include <saxbospiral/render.h>
 #include <saxbospiral/render_backends/png_backend.h>
 
-#include "sxbp.h"
-
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
 // returns size of file associated with given file handle
-size_t get_file_size(FILE* file_handle) {
+static size_t get_file_size(FILE* file_handle) {
     // seek to end
     fseek(file_handle, 0L, SEEK_END);
     // get size
@@ -33,7 +31,7 @@ size_t get_file_size(FILE* file_handle) {
  * given an open file handle and a buffer, read the file contents into buffer
  * returns true on success and false on failure.
  */
-bool file_to_buffer(FILE* file_handle, buffer_t* buffer) {
+static bool file_to_buffer(FILE* file_handle, sxbp_buffer_t* buffer) {
     size_t file_size = get_file_size(file_handle);
     // allocate/re-allocate buffer memory
     if(buffer->bytes == NULL) {
@@ -63,7 +61,7 @@ bool file_to_buffer(FILE* file_handle, buffer_t* buffer) {
  * to the file.
  * returns true on success and false on failure.
  */
-bool buffer_to_file(buffer_t* buffer, FILE* file_handle) {
+static bool buffer_to_file(sxbp_buffer_t* buffer, FILE* file_handle) {
     size_t bytes_written = fwrite(
         buffer->bytes, 1, buffer->size, file_handle
     );
@@ -79,17 +77,17 @@ bool buffer_to_file(buffer_t* buffer, FILE* file_handle) {
  * private function, given a diagnostic_t error, returns the string name of the
  * error code
  */
-static const char* error_code_string(diagnostic_t error) {
+static const char* error_code_string(sxbp_diagnostic_t error) {
     switch(error) {
-        case OPERATION_FAIL:
+        case SXBP_OPERATION_FAIL:
             return "OPERATION_FAIL";
-        case MALLOC_REFUSED:
+        case SXBP_MALLOC_REFUSED:
             return "MALLOC_REFUSED";
-        case IMPOSSIBLE_CONDITION:
+        case SXBP_IMPOSSIBLE_CONDITION:
             return "IMPOSSIBLE_CONDITION";
-        case OPERATION_OK:
+        case SXBP_OPERATION_OK:
             return "OPERATION_OK (NO ERROR)";
-        case STATE_UNKNOWN:
+        case SXBP_STATE_UNKNOWN:
         default:
             return "UNKNOWN ERROR";
     }
@@ -99,17 +97,17 @@ static const char* error_code_string(diagnostic_t error) {
  * private function, given a deserialise_diagnostic_t error, returns the string
  * name of the error code
  */
-static const char* file_error_code_string(deserialise_diagnostic_t error) {
+static const char* file_error_code_string(sxbp_deserialise_diagnostic_t error) {
     switch(error) {
-        case DESERIALISE_OK:
+        case SXBP_DESERIALISE_OK:
             return "DESERIALISE_OK (NO ERROR)";
-        case DESERIALISE_BAD_HEADER_SIZE:
+        case SXBP_DESERIALISE_BAD_HEADER_SIZE:
             return "DESERIALISE_BAD_HEADER_SIZE";
-        case DESERIALISE_BAD_MAGIC_NUMBER:
+        case SXBP_DESERIALISE_BAD_MAGIC_NUMBER:
             return "DESERIALISE_BAD_MAGIC_NUMBER";
-        case DESERIALISE_BAD_VERSION:
+        case SXBP_DESERIALISE_BAD_VERSION:
             return "DESERIALISE_BAD_VERSION";
-        case DESERIALISE_BAD_DATA_SIZE:
+        case SXBP_DESERIALISE_BAD_DATA_SIZE:
             return "DESERIALISE_BAD_DATA_SIZE";
         default:
             return "UNKNOWN ERROR";
@@ -120,9 +118,9 @@ static const char* file_error_code_string(deserialise_diagnostic_t error) {
  * private function to handle all generic errors, by printing to stderr
  * returns true if there was an error, false if not
  */
-static bool handle_error(status_t result) {
+static bool handle_error(sxbp_status_t result) {
     // if we had problems, print to stderr and return true
-    if(result.diagnostic != OPERATION_OK) {
+    if(result.diagnostic != SXBP_OPERATION_OK) {
         fprintf(
             stderr,
             "Error Code: %s\n", error_code_string(result.diagnostic)
@@ -139,7 +137,7 @@ static bool handle_error(status_t result) {
  * options configured via command-line.
  * returns true on success, false on failure.
  */
-bool run(
+static bool run(
     bool prepare, bool generate, bool render, bool perfect,
     int perfect_threshold, int line_limit, int total_lines,
     const char* input_file_path, const char* output_file_path
@@ -151,9 +149,9 @@ bool run(
         return false;
     }
     // make input buffer
-    buffer_t input_buffer = {0, 0};
+    sxbp_buffer_t input_buffer = {0, 0};
     // make output buffer
-    buffer_t output_buffer = {0, 0};
+    sxbp_buffer_t output_buffer = {0, 0};
     // read input file into buffer
     bool read_ok = file_to_buffer(input_file, &input_buffer);
     // used later for telling if write of output file was success
@@ -166,7 +164,7 @@ bool run(
         return false;
     }
     // create initial blank spiral struct
-    spiral_t spiral = blank_spiral();
+    sxbp_spiral_t spiral = sxbp_blank_spiral();
     // resolve perfection threshold - set to -1 if disabled completely
     int perfection = (perfect == false) ? -1 : perfect_threshold;
     // check error condition (where no actions were specified)
@@ -178,15 +176,15 @@ bool run(
     // otherwise, good to go
     if(prepare) {
         // we must build spiral from raw file first
-        if(handle_error(init_spiral(input_buffer, &spiral))) {
+        if(handle_error(sxbp_init_spiral(input_buffer, &spiral))) {
             // handle errors
             return false;
         }
     } else {
         // otherwise, we must load spiral from file
-        serialise_result_t result = load_spiral(input_buffer, &spiral);
+        sxbp_serialise_result_t result = sxbp_load_spiral(input_buffer, &spiral);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != OPERATION_OK) {
+        if(result.status.diagnostic != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
@@ -214,28 +212,28 @@ bool run(
             (uint64_t)total_lines : lines_to_plot
         );
         // we must plot all lines from spiral file
-        if(handle_error(plot_spiral(&spiral, perfection, lines_to_plot, NULL))) {
+        if(handle_error(sxbp_plot_spiral(&spiral, perfection, lines_to_plot, NULL))) {
             // handle errors
             return false;
         }
     }
     if(render) {
         // we must render an image from spiral
-        bitmap_t image = {0, 0, 0};
-        if(handle_error(render_spiral(spiral, &image))) {
+        sxbp_bitmap_t image = {0, 0, 0};
+        if(handle_error(sxbp_render_spiral(spiral, &image))) {
             // handle errors
             return false;
         }
         // now write PNG image data to buffer with libpng
-        if(handle_error(write_png_image(image, &output_buffer))) {
+        if(handle_error(sxbp_write_png_image(image, &output_buffer))) {
             // handle errors
             return false;
         }
     } else {
         // otherwise, we must simply dump the spiral as-is
-        serialise_result_t result = dump_spiral(spiral, &output_buffer);
+        sxbp_serialise_result_t result = sxbp_dump_spiral(spiral, &output_buffer);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != OPERATION_OK) {
+        if(result.status.diagnostic != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
