@@ -1,7 +1,26 @@
+# This source file is used to build sxbp, a command-line program which
+# generates experimental 2D spiral-like shapes based on input binary data.
+#
+#
+#
+# Copyright (C) 2016, Joshua Saxby joshua.a.saxby+TNOPLuc8vM==@gmail.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License (version 3),
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 # begin basic metadata
 cmake_minimum_required(VERSION 3.0)
 
-project(sxbp VERSION 0.2.3 LANGUAGES C)
+project(sxbp VERSION 0.3.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(
@@ -47,7 +66,7 @@ endif()
 # add custom dependencies directory
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # libsaxbospiral
-find_package(Saxbospiral 0.18 EXACT REQUIRED)
+find_package(Saxbospiral 0.19 EXACT REQUIRED)
 include_directories(${SAXBOSPIRAL_INCLUDE_DIR})
 # Argtable
 find_package(Argtable REQUIRED)
