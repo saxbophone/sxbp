@@ -1,7 +1,7 @@
 # begin basic metadata
 cmake_minimum_required(VERSION 3.0)
 
-project(sxbp VERSION 0.2.2 LANGUAGES C)
+project(sxbp VERSION 0.2.3 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(
@@ -47,7 +47,7 @@ endif()
 # add custom dependencies directory
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # libsaxbospiral
-find_package(Saxbospiral 0.17 EXACT REQUIRED)
+find_package(Saxbospiral 0.18 EXACT REQUIRED)
 include_directories(${SAXBOSPIRAL_INCLUDE_DIR})
 # Argtable
 find_package(Argtable REQUIRED)

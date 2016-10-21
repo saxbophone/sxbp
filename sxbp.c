@@ -211,8 +211,12 @@ static bool run(
             (total_lines != -1 && (uint64_t)total_lines < lines_to_plot) ?
             (uint64_t)total_lines : lines_to_plot
         );
-        // we must plot all lines from spiral file
-        if(handle_error(sxbp_plot_spiral(&spiral, perfection, lines_to_plot, NULL))) {
+        // we must plot the unsolved lines from spiral file
+        if(
+            handle_error(
+                sxbp_plot_spiral(&spiral, perfection, lines_to_plot, NULL, NULL)
+            )
+        ) {
             // handle errors
             return false;
         }
