@@ -21,7 +21,7 @@ Note that as well as being under the same copyleft protections as the GPL Licens
 Once sxbp is installed, run `sxbp -h` for usage information, or look here:
 
 ```
-Usage: sxbp [-hvpgrD] [-d <int>] [-l <int>] [-t <int>] [-i <file>] [-o <file>]
+Usage: sxbp [-hvpgrD] [-d <int>] [-l <int>] [-t <int>] [-s <int>] [-i <file>] [-o <file>]
   -h, --help                show this help and exit
   -v, --version             show version of program and library, then exit
   -p, --prepare             prepare a spiral from raw binary data
@@ -31,6 +31,7 @@ Usage: sxbp [-hvpgrD] [-d <int>] [-l <int>] [-t <int>] [-i <file>] [-o <file>]
   -d, --perfection-threshold=<int> set optimisation threshold
   -l, --line-limit=<int>    plot this many more lines than currently solved
   -t, --total-lines=<int>   total number of lines to plot to
+  -s, --save-every=<int>    save to file every this number of lines solved
   -i, --input=<file>        input file path
   -o, --output=<file>       output file path
 ```
