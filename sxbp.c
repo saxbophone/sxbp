@@ -323,6 +323,9 @@ int main(int argc, char* argv[]) {
     struct arg_int* line_limit = arg_int0(
         "l", "line-limit", NULL, "plot this many more lines than currently solved"
     );
+    struct arg_int* save_every = arg_int0(
+        "s", "save-every", NULL, "save to file every this number of lines solved"
+    );
     // input file path option
     struct arg_file* input = arg_file0(
         "i", "input", NULL, "input file path"
@@ -336,7 +339,7 @@ int main(int argc, char* argv[]) {
     void* argtable[] = {
         help, version,
         prepare, generate, render,
-        perfect, perfect_threshold, line_limit, total_lines,
+        perfect, perfect_threshold, line_limit, total_lines, save_every,
         input, output, end,
     };
     const char* program_name = "sxbp";
@@ -350,9 +353,10 @@ int main(int argc, char* argv[]) {
     }
     // set default value of perfect_threshold argument
     perfect_threshold->ival[0] = 1;
-    // set default value of line_limit and total_lines arguments
+    // set default value of line_limit, total_lines and save_every arguments
     line_limit->ival[0] = -1;
     total_lines->ival[0] = -1;
+    save_every->ival[0] = -1;
     // parse arguments
     int count_errors = arg_parse(argc, argv, argtable);
     // if we asked for the version, show it
