@@ -155,13 +155,87 @@ static bool handle_error(sxbp_status_t result) {
 }
 
 /*
+ * private structure, used for supplying many a datum to the callback function
+ * passed to plot_spiral()
+ */
+struct user_data_t {
+    // whether to render to sxp format or png
+    enum {RENDER_MODE_SXP, RENDER_MODE_PNG,} render_mode;
+    const char* file_path; // path of file to save to
+    uint64_t save_line_interval; // save file every this number of lines
+};
+
+/*
+ * disable GCC warning about the unused parameter, as this is a callback it must
+ * include all arguments specified by the library prototype, even if not used
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+/*
+ * private function - callback handler for plot_spiral()
+ * saves current spiral state to .sxp or .png depending on whether in render
+ * mode or not, and on how often it is to save output
+ */
+static void plot_spiral_callback(
+    sxbp_spiral_t* spiral, uint64_t latest_line, uint64_t target_line,
+    void* user_data_void_pointer
+) {
+    // cast void pointer to our user data type
+    struct user_data_t user_data = *(struct user_data_t*)user_data_void_pointer;
+    // first, check if we need to save this time
+    if(((spiral->solved_count - 1) % user_data.save_line_interval) == 0) {
+        // we do need to save, so check we can open the file first
+        FILE* output_file = fopen(user_data.file_path, "wb");
+        if(output_file != NULL) {
+            // create variable to store return status of serialise operations
+            sxbp_diagnostic_t result = SXBP_STATE_UNKNOWN;
+            // create output buffer
+            sxbp_buffer_t output_buffer = {0, 0};
+            // Now, check whether it'll be to sxp or png
+            if(user_data.render_mode == RENDER_MODE_SXP) {
+                // save to sxp, store result code
+                result = sxbp_dump_spiral(
+                    *spiral, &output_buffer
+                ).status.diagnostic;
+            } else if(user_data.render_mode == RENDER_MODE_PNG) {
+                // save to png, store output result
+                sxbp_bitmap_t image = {0, 0, 0};
+                result = sxbp_render_spiral(*spiral, &image).diagnostic;
+                // write out PNG data to buffer if success
+                if(result == SXBP_OPERATION_OK) {
+                    result = sxbp_write_png_image(
+                        image, &output_buffer
+                    ).diagnostic;
+                }
+            } else {
+                // uh-uh, something terribly bad happened. should not get here!
+                // TODO: Replace this with assertion on render_mode...
+            }
+            // if all was ok, save to file
+            if(result == SXBP_OPERATION_OK) {
+                buffer_to_file(&output_buffer, output_file);
+                fclose(output_file);
+            }
+        } else {
+            fprintf(
+                stderr,
+                "Couldn't open file for writing: %s\n",
+                user_data.file_path
+            );
+        }
+    }
+}
+// re-enable all warnings
+#pragma GCC diagnostic pop
+
+/*
  * function responsible for actually doing the main work, called by main with
  * options configured via command-line.
  * returns true on success, false on failure.
  */
 static bool run(
     bool prepare, bool generate, bool render, bool perfect,
-    int perfect_threshold, int line_limit, int total_lines,
+    int perfect_threshold, int line_limit, int total_lines, int save_every,
     const char* input_file_path, const char* output_file_path
 ) {
     // get input file handle
@@ -234,11 +308,29 @@ static bool run(
             (uint64_t)total_lines : lines_to_plot
         );
         // we must plot the unsolved lines from spiral file
-        if(
-            handle_error(
-                sxbp_plot_spiral(&spiral, perfection, lines_to_plot, NULL, NULL)
-            )
-        ) {
+        sxbp_status_t errors;
+        if(save_every > 0) {
+            // if we've been asked to save every x lines, we need to use callback
+            // build user data for callback
+            struct user_data_t user_data = {
+                .render_mode = (
+                    (render == false) ? RENDER_MODE_SXP : RENDER_MODE_PNG
+                ),
+                .file_path = output_file_path,
+                .save_line_interval = save_every,
+            };
+            errors = sxbp_plot_spiral(
+                &spiral, perfection, lines_to_plot,
+                plot_spiral_callback, (void*)&user_data
+            );
+        } else {
+            // otherwise, no need to use callback
+            errors = sxbp_plot_spiral(
+                &spiral, perfection, lines_to_plot, NULL, NULL
+            );
+        }
+        // handle errors
+        if(handle_error(errors)) {
             // handle errors
             return false;
         }
@@ -323,6 +415,9 @@ int main(int argc, char* argv[]) {
     struct arg_int* line_limit = arg_int0(
         "l", "line-limit", NULL, "plot this many more lines than currently solved"
     );
+    struct arg_int* save_every = arg_int0(
+        "s", "save-every", NULL, "save to file every this number of lines solved"
+    );
     // input file path option
     struct arg_file* input = arg_file0(
         "i", "input", NULL, "input file path"
@@ -336,7 +431,7 @@ int main(int argc, char* argv[]) {
     void* argtable[] = {
         help, version,
         prepare, generate, render,
-        perfect, perfect_threshold, line_limit, total_lines,
+        perfect, perfect_threshold, line_limit, total_lines, save_every,
         input, output, end,
     };
     const char* program_name = "sxbp";
@@ -350,9 +445,10 @@ int main(int argc, char* argv[]) {
     }
     // set default value of perfect_threshold argument
     perfect_threshold->ival[0] = 1;
-    // set default value of line_limit and total_lines arguments
+    // set default value of line_limit, total_lines and save_every arguments
     line_limit->ival[0] = -1;
     total_lines->ival[0] = -1;
+    save_every->ival[0] = -1;
     // parse arguments
     int count_errors = arg_parse(argc, argv, argtable);
     // if we asked for the version, show it
@@ -393,6 +489,7 @@ int main(int argc, char* argv[]) {
         perfect_threshold->ival[0],
         line_limit->ival[0],
         total_lines->ival[0],
+        save_every->ival[0],
         *input->filename,
         *output->filename
     );
