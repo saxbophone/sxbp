@@ -42,7 +42,7 @@ You will need:
 
 - A compiler that can compile ISO C99 code
 - [Cmake](https://cmake.org/) - v3.0 or newer
-- [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral) - the library that does all the spiral generation work. Build and install it first
+- [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral) - v0.20.x
 - [Argtable 2](http://argtable.sourceforge.net/) - must use v2, v1 and v3 will not work
 
 > ### Note:
