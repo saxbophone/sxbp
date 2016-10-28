@@ -26,12 +26,12 @@
 #include <stdlib.h>
 
 #include <argtable2.h>
-#include <saxbospiral/saxbospiral.h>
-#include <saxbospiral/initialise.h>
-#include <saxbospiral/solve.h>
-#include <saxbospiral/serialise.h>
-#include <saxbospiral/render.h>
-#include <saxbospiral/render_backends/png_backend.h>
+#include <saxbospiral-0.20/saxbospiral.h>
+#include <saxbospiral-0.20/initialise.h>
+#include <saxbospiral-0.20/solve.h>
+#include <saxbospiral-0.20/serialise.h>
+#include <saxbospiral-0.20/render.h>
+#include <saxbospiral-0.20/render_backends/png_backend.h>
 
 
 #ifdef __cplusplus
@@ -96,10 +96,10 @@ static bool buffer_to_file(sxbp_buffer_t* buffer, FILE* file_handle) {
 }
 
 /*
- * private function, given a diagnostic_t error, returns the string name of the
+ * private function, given a status_t error, returns the string name of the
  * error code
  */
-static const char* error_code_string(sxbp_diagnostic_t error) {
+static const char* error_code_string(sxbp_status_t error) {
     switch(error) {
         case SXBP_OPERATION_FAIL:
             return "OPERATION_FAIL";
@@ -142,11 +142,8 @@ static const char* file_error_code_string(sxbp_deserialise_diagnostic_t error) {
  */
 static bool handle_error(sxbp_status_t result) {
     // if we had problems, print to stderr and return true
-    if(result.diagnostic != SXBP_OPERATION_OK) {
-        fprintf(
-            stderr,
-            "Error Code: %s\n", error_code_string(result.diagnostic)
-        );
+    if(result != SXBP_OPERATION_OK) {
+        fprintf(stderr, "Error Code: %s\n", error_code_string(result));
         return true;
     } else {
         // otherwise, return false to say 'no error'
@@ -188,7 +185,7 @@ static void plot_spiral_callback(
         FILE* output_file = fopen(user_data.file_path, "wb");
         if(output_file != NULL) {
             // create variable to store return status of serialise operations
-            sxbp_diagnostic_t result = SXBP_STATE_UNKNOWN;
+            sxbp_status_t result = SXBP_STATE_UNKNOWN;
             // create output buffer
             sxbp_buffer_t output_buffer = {0, 0};
             // Now, check whether it'll be to sxp or png
@@ -196,16 +193,16 @@ static void plot_spiral_callback(
                 // save to sxp, store result code
                 result = sxbp_dump_spiral(
                     *spiral, &output_buffer
-                ).status.diagnostic;
+                ).status;
             } else if(user_data.render_mode == RENDER_MODE_PNG) {
                 // save to png, store output result
                 sxbp_bitmap_t image = {0, 0, 0};
-                result = sxbp_render_spiral(*spiral, &image).diagnostic;
+                result = sxbp_render_spiral(*spiral, &image);
                 // write out PNG data to buffer if success
                 if(result == SXBP_OPERATION_OK) {
                     result = sxbp_write_png_image(
                         image, &output_buffer
-                    ).diagnostic;
+                    );
                 }
             } else {
                 // uh-uh, something terribly bad happened. should not get here!
@@ -280,11 +277,11 @@ static bool run(
         // otherwise, we must load spiral from file
         sxbp_serialise_result_t result = sxbp_load_spiral(input_buffer, &spiral);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != SXBP_OPERATION_OK) {
+        if(result.status != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
-                error_code_string(result.status.diagnostic),
+                error_code_string(result.status),
                 file_error_code_string(result.diagnostic)
             );
             return false;
@@ -351,11 +348,11 @@ static bool run(
         // otherwise, we must simply dump the spiral as-is
         sxbp_serialise_result_t result = sxbp_dump_spiral(spiral, &output_buffer);
         // if we had problems, print to stderr and quit
-        if(result.status.diagnostic != SXBP_OPERATION_OK) {
+        if(result.status != SXBP_OPERATION_OK) {
             fprintf(
                 stderr,
                 "Error Code:\t\t%s\nFile Error Code:\t%s\n",
-                error_code_string(result.status.diagnostic),
+                error_code_string(result.status),
                 file_error_code_string(result.diagnostic)
             );
             return false;
