@@ -20,7 +20,7 @@
 # begin basic metadata
 cmake_minimum_required(VERSION 3.0)
 
-project(sxbp VERSION 0.5.0 LANGUAGES C)
+project(sxbp VERSION 0.6.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(
