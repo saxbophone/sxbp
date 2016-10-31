@@ -1,6 +1,7 @@
 /*
- * This source file forms sxbp, a command-line program which generates
- * experimental 2D spiral-like shapes based on input binary data.
+ * This source file forms sxbp, a command-line program which generates images of
+ * experimental 2D spiral-like shapes in PBM format, based on input binary data.
+ *
  * It uses libsaxbospiral to achieve this, a library available under the same
  * licensing terms as this program.
  *
@@ -26,12 +27,12 @@
 #include <stdlib.h>
 
 #include <argtable2.h>
-#include <saxbospiral-0.20/saxbospiral.h>
-#include <saxbospiral-0.20/initialise.h>
-#include <saxbospiral-0.20/solve.h>
-#include <saxbospiral-0.20/serialise.h>
-#include <saxbospiral-0.20/render.h>
-#include <saxbospiral-0.20/render_backends/png_backend.h>
+#include <saxbospiral-0.21/saxbospiral.h>
+#include <saxbospiral-0.21/initialise.h>
+#include <saxbospiral-0.21/solve.h>
+#include <saxbospiral-0.21/serialise.h>
+#include <saxbospiral-0.21/render.h>
+#include <saxbospiral-0.21/render_backends/backend_pbm.h>
 
 
 #ifdef __cplusplus
@@ -156,8 +157,8 @@ static bool handle_error(sxbp_status_t result) {
  * passed to plot_spiral()
  */
 struct user_data_t {
-    // whether to render to sxp format or png
-    enum {RENDER_MODE_SXP, RENDER_MODE_PNG,} render_mode;
+    // whether to render to sxp format or pbm
+    enum {RENDER_MODE_SXP, RENDER_MODE_PBM,} render_mode;
     const char* file_path; // path of file to save to
     uint64_t save_line_interval; // save file every this number of lines
 };
@@ -170,7 +171,7 @@ struct user_data_t {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 /*
  * private function - callback handler for plot_spiral()
- * saves current spiral state to .sxp or .png depending on whether in render
+ * saves current spiral state to .sxp or .pbm depending on whether in render
  * mode or not, and on how often it is to save output
  */
 static void plot_spiral_callback(
@@ -188,19 +189,19 @@ static void plot_spiral_callback(
             sxbp_status_t result = SXBP_STATE_UNKNOWN;
             // create output buffer
             sxbp_buffer_t output_buffer = {0, 0};
-            // Now, check whether it'll be to sxp or png
+            // Now, check whether it'll be to sxp or pbm
             if(user_data.render_mode == RENDER_MODE_SXP) {
                 // save to sxp, store result code
                 result = sxbp_dump_spiral(
                     *spiral, &output_buffer
                 ).status;
-            } else if(user_data.render_mode == RENDER_MODE_PNG) {
-                // save to png, store output result
+            } else if(user_data.render_mode == RENDER_MODE_PBM) {
+                // save to pbm, store output result
                 sxbp_bitmap_t image = {0, 0, 0};
-                result = sxbp_render_spiral(*spiral, &image);
-                // write out PNG data to buffer if success
+                result = sxbp_render_spiral_raw(*spiral, &image);
+                // write out PBM data to buffer if success
                 if(result == SXBP_OPERATION_OK) {
-                    result = sxbp_write_png_image(
+                    result = sxbp_render_backend_pbm(
                         image, &output_buffer
                     );
                 }
@@ -311,7 +312,7 @@ static bool run(
             // build user data for callback
             struct user_data_t user_data = {
                 .render_mode = (
-                    (render == false) ? RENDER_MODE_SXP : RENDER_MODE_PNG
+                    (render == false) ? RENDER_MODE_SXP : RENDER_MODE_PBM
                 ),
                 .file_path = output_file_path,
                 .save_line_interval = save_every,
@@ -335,12 +336,12 @@ static bool run(
     if(render) {
         // we must render an image from spiral
         sxbp_bitmap_t image = {0, 0, 0};
-        if(handle_error(sxbp_render_spiral(spiral, &image))) {
+        if(handle_error(sxbp_render_spiral_raw(spiral, &image))) {
             // handle errors
             return false;
         }
-        // now write PNG image data to buffer with libpng
-        if(handle_error(sxbp_write_png_image(image, &output_buffer))) {
+        // now write PBM image data to buffer
+        if(handle_error(sxbp_render_backend_pbm(image, &output_buffer))) {
             // handle errors
             return false;
         }
@@ -469,7 +470,7 @@ int main(int argc, char* argv[]) {
     if((count_errors > 0) || (help->count > 0)) {
         printf("Usage: %s", program_name);
         arg_print_syntax(stdout, argtable, "\n");
-        arg_print_glossary(stdout, argtable, "  %-25s %s\n");
+        arg_print_glossary(stdout, argtable, "  %-32s %s\n");
     }
     // if at this point status_code is not -1, clean up then return early
     if(status_code != -1) {
