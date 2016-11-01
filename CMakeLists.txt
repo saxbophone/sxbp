@@ -90,7 +90,7 @@ if(COMMAND_INTERPRETER)
     )
     add_custom_target(
         build_logo ${COMMAND_INTERPRETER}
-        "build_logo.sh" sxbp "sxbp.png" "sxbp v${SXBP_VERSION_STRING}"
+        "build_logo.sh" sxbp "sxbp.pbm" "sxbp v${SXBP_VERSION_STRING}"
     )
 else()
     # warn about skipping of functional test script
