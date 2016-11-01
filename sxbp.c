@@ -203,9 +203,6 @@ static void plot_spiral_callback(
                 result = sxbp_render_spiral_image(
                     *spiral, &output_buffer, sxbp_render_backend_pbm
                 );
-            } else {
-                // uh-uh, something terribly bad happened. should not get here!
-                // TODO: Replace this with assertion on render_mode...
             }
             // if all was ok, save to file
             if(result == SXBP_OPERATION_OK) {
