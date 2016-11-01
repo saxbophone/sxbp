@@ -196,18 +196,13 @@ static void plot_spiral_callback(
                     *spiral, &output_buffer
                 ).status;
             } else if(user_data.render_mode == RENDER_MODE_PBM) {
-                // save to pbm, store output result
-                sxbp_bitmap_t image = {0, 0, 0};
-                result = sxbp_render_spiral_raw(*spiral, &image);
-                // write out PBM data to buffer if success
-                if(result == SXBP_OPERATION_OK) {
-                    result = sxbp_render_backend_pbm(
-                        image, &output_buffer
-                    );
-                }
-            } else {
-                // uh-uh, something terribly bad happened. should not get here!
-                // TODO: Replace this with assertion on render_mode...
+                /*
+                 * render spiral to image, using PBM render function and store
+                 * data in buffer - capture return status to check later
+                 */
+                result = sxbp_render_spiral_image(
+                    *spiral, &output_buffer, sxbp_render_backend_pbm
+                );
             }
             // if all was ok, save to file
             if(result == SXBP_OPERATION_OK) {
@@ -334,14 +329,17 @@ static bool run(
         }
     }
     if(render) {
-        // we must render an image from spiral
-        sxbp_bitmap_t image = {0, 0, 0};
-        if(handle_error(sxbp_render_spiral_raw(spiral, &image))) {
-            // handle errors
-            return false;
-        }
-        // now write PBM image data to buffer
-        if(handle_error(sxbp_render_backend_pbm(image, &output_buffer))) {
+        /*
+         * render spiral to image, using PBM render function and store
+         * data in buffer - handle error if any
+         */
+        if(
+            handle_error(
+                sxbp_render_spiral_image(
+                    spiral, &output_buffer, sxbp_render_backend_pbm
+                )
+            )
+        ) {
             // handle errors
             return false;
         }
