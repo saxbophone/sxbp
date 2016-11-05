@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <argtable2.h>
 #include <saxbospiral-0.21/saxbospiral.h>
@@ -33,6 +34,7 @@
 #include <saxbospiral-0.21/serialise.h>
 #include <saxbospiral-0.21/render.h>
 #include <saxbospiral-0.21/render_backends/backend_pbm.h>
+#include <saxbospiral-0.21/render_backends/backend_png.h>
 
 
 #ifdef __cplusplus
@@ -152,13 +154,18 @@ static bool handle_error(sxbp_status_t result) {
     }
 }
 
+// enum for representing different spiral render modes
+enum spiral_render_mode_t {
+    RENDER_MODE_SXP, RENDER_MODE_PBM, RENDER_MODE_PNG,
+};
+
 /*
  * private structure, used for supplying many a datum to the callback function
  * passed to plot_spiral()
  */
 struct user_data_t {
-    // whether to render to sxp format or pbm
-    enum {RENDER_MODE_SXP, RENDER_MODE_PBM,} render_mode;
+    // whether to render to sxp, pbm or png format
+    enum spiral_render_mode_t render_mode;
     const char* file_path; // path of file to save to
     uint64_t save_line_interval; // save file every this number of lines
 };
@@ -189,7 +196,7 @@ static void plot_spiral_callback(
             sxbp_status_t result = SXBP_STATE_UNKNOWN;
             // create output buffer
             sxbp_buffer_t output_buffer = {0, 0};
-            // Now, check whether it'll be to sxp or pbm
+            // Now, check whether it'll be to sxp
             if(user_data.render_mode == RENDER_MODE_SXP) {
                 // save to sxp, store result code
                 result = sxbp_dump_spiral(
@@ -202,6 +209,14 @@ static void plot_spiral_callback(
                  */
                 result = sxbp_render_spiral_image(
                     *spiral, &output_buffer, sxbp_render_backend_pbm
+                );
+            } else if(user_data.render_mode == RENDER_MODE_PNG) {
+                /*
+                 * render spiral to image, using PNG render function and store
+                 * data in buffer - capture return status to check later
+                 */
+                result = sxbp_render_spiral_image(
+                    *spiral, &output_buffer, sxbp_render_backend_png
                 );
             }
             // if all was ok, save to file
@@ -229,6 +244,7 @@ static void plot_spiral_callback(
 static bool run(
     bool prepare, bool generate, bool render, bool perfect,
     int perfect_threshold, int line_limit, int total_lines, int save_every,
+    const char* image_format,
     const char* input_file_path, const char* output_file_path
 ) {
     // get input file handle
@@ -261,6 +277,28 @@ static bool run(
         // none of the above. this is an error condition - nothing to be done
         fprintf(stderr, "%s\n", "Nothing to be done!");
         return false;
+    }
+    // PBM format is default for rendering to image
+    enum spiral_render_mode_t default_render_mode = RENDER_MODE_PBM;
+    // override render image format if format option given
+    if(
+        (render == true) &&
+        (image_format != NULL) &&
+        (strcmp(image_format, "") != 0)
+    ) {
+        if(strcmp(image_format, "png") == 0) {
+            default_render_mode = RENDER_MODE_PNG;
+        } else if(strcmp(image_format, "pbm") == 0) {
+            // No-op as it's already set to PBM format
+            NULL;
+        } else {
+            // Error, unrecognised file format
+            fprintf(
+                stderr, "Unsupported image file format: '%s'\n",
+                image_format
+            );
+            return false;
+        }
     }
     // otherwise, good to go
     if(prepare) {
@@ -306,8 +344,9 @@ static bool run(
             // if we've been asked to save every x lines, we need to use callback
             // build user data for callback
             struct user_data_t user_data = {
+                // use default image format if rendering to image
                 .render_mode = (
-                    (render == false) ? RENDER_MODE_SXP : RENDER_MODE_PBM
+                    (render == false) ? RENDER_MODE_SXP : default_render_mode
                 ),
                 .file_path = output_file_path,
                 .save_line_interval = save_every,
@@ -333,14 +372,21 @@ static bool run(
          * render spiral to image, using PBM render function and store
          * data in buffer - handle error if any
          */
-        if(
-            handle_error(
-                sxbp_render_spiral_image(
-                    spiral, &output_buffer, sxbp_render_backend_pbm
-                )
-            )
-        ) {
-            // handle errors
+        sxbp_status_t error = SXBP_STATE_UNKNOWN;
+        // render to whichever image format was specified
+        if(default_render_mode == RENDER_MODE_PBM) {
+            // render to PBM format
+            error = sxbp_render_spiral_image(
+                spiral, &output_buffer, sxbp_render_backend_pbm
+            );
+        } else if(default_render_mode == RENDER_MODE_PNG) {
+            // render to PNG format
+            error = sxbp_render_spiral_image(
+                spiral, &output_buffer, sxbp_render_backend_png
+            );
+        }
+        // handle errors
+        if(handle_error(error)) {
             return false;
         }
     } else {
@@ -414,6 +460,9 @@ int main(int argc, char* argv[]) {
     struct arg_int* save_every = arg_int0(
         "s", "save-every", NULL, "save to file every this number of lines solved"
     );
+    struct arg_str* image_format = arg_str0(
+        "f", "image-format", "FORMAT", "which image format to render to (pbm/png)"
+    );
     // input file path option
     struct arg_file* input = arg_file0(
         "i", "input", NULL, "input file path"
@@ -428,6 +477,7 @@ int main(int argc, char* argv[]) {
         help, version,
         prepare, generate, render,
         perfect, perfect_threshold, line_limit, total_lines, save_every,
+        image_format,
         input, output, end,
     };
     const char* program_name = "sxbp";
@@ -486,6 +536,7 @@ int main(int argc, char* argv[]) {
         line_limit->ival[0],
         total_lines->ival[0],
         save_every->ival[0],
+        image_format->sval[0],
         *input->filename,
         *output->filename
     );
