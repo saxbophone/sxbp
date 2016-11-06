@@ -82,6 +82,32 @@ static bool file_to_buffer(FILE* file_handle, sxbp_buffer_t* buffer) {
 }
 
 /*
+ * given a C-style string and a buffer, reads the string into the buffer
+ * returns true on success and false on failure.
+ */
+static bool string_to_buffer(const char* input_string, sxbp_buffer_t* buffer) {
+    // get string length
+    size_t input_length = strlen(input_string);
+    // allocate buffer memory
+    buffer->bytes = calloc(1, input_length);
+    if(buffer->bytes == NULL) {
+        // couldn't allocate memory!
+        return false;
+    }
+    buffer->size = input_length;
+    // copy data from string to buffer
+    void* result = memcpy(buffer->bytes, input_string, input_length);
+    // return true if memcpy result points to something
+    if(result != NULL) {
+        return true;
+    } else {
+        // free memory and return false
+        free(buffer->bytes);
+        return false;
+    }
+}
+
+/*
  * given a buffer struct and an open file handle, writes the buffer contents
  * to the file.
  * returns true on success and false on failure.
@@ -244,28 +270,40 @@ static void plot_spiral_callback(
 static bool run(
     bool prepare, bool generate, bool render, bool perfect,
     int perfect_threshold, int line_limit, int total_lines, int save_every,
-    const char* image_format,
+    const char* image_format, const char* input_string,
     const char* input_file_path, const char* output_file_path
 ) {
-    // get input file handle
-    FILE* input_file = fopen(input_file_path, "rb");
-    if(input_file == NULL) {
-        fprintf(stderr, "%s\n", "Couldn't open input file");
-        return false;
-    }
     // make input buffer
     sxbp_buffer_t input_buffer = {0, 0};
     // make output buffer
     sxbp_buffer_t output_buffer = {0, 0};
-    // read input file into buffer
-    bool read_ok = file_to_buffer(input_file, &input_buffer);
+    // used later for telling if read from input file or string was success
+    bool read_ok = false;
     // used later for telling if write of output file was success
     bool write_ok = false;
-    // close input file
-    fclose(input_file);
-    // if read was unsuccessful, don't continue
+    // work out whether we're reading from string or file or if neither were given
+    if((strcmp(input_file_path, "") == 0) && (strcmp(input_string, "") == 0)) {
+        fprintf(stderr, "Neither an input file or an input string were given\n");
+        return false;
+    } else if(strcmp(input_file_path, "") == 0) {
+        // the filepath wasn't given so read from string
+        read_ok = string_to_buffer(input_string, &input_buffer);
+    } else {
+        // the string wasn't given so open the file
+        // get input file handle
+        FILE* input_file = fopen(input_file_path, "rb");
+        if(input_file == NULL) {
+            fprintf(stderr, "%s\n", "Couldn't open input file");
+            return false;
+        }
+        // read input file into buffer
+        read_ok = file_to_buffer(input_file, &input_buffer);
+        // close input file
+        fclose(input_file);
+        // if read was unsuccessful, don't continue
+    }
     if(read_ok == false) {
-        fprintf(stderr, "%s\n", "Couldn't read input file");
+        fprintf(stderr, "%s\n", "Couldn't read input file/data");
         return false;
     }
     // create initial blank spiral struct
@@ -463,6 +501,10 @@ int main(int argc, char* argv[]) {
     struct arg_str* image_format = arg_str0(
         "f", "image-format", "FORMAT", "which image format to render to (pbm/png)"
     );
+    struct arg_str* input_string = arg_str0(
+        "S", "string", "STRING",
+        "use the given STRING as input data for the spiral"
+    );
     // input file path option
     struct arg_file* input = arg_file0(
         "i", "input", NULL, "input file path"
@@ -477,7 +519,7 @@ int main(int argc, char* argv[]) {
         help, version,
         prepare, generate, render,
         perfect, perfect_threshold, line_limit, total_lines, save_every,
-        image_format,
+        image_format, input_string,
         input, output, end,
     };
     const char* program_name = "sxbp";
@@ -537,6 +579,7 @@ int main(int argc, char* argv[]) {
         total_lines->ival[0],
         save_every->ival[0],
         image_format->sval[0],
+        input_string->sval[0],
         *input->filename,
         *output->filename
     );
