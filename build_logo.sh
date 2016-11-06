@@ -7,6 +7,4 @@
 # (of format "saxbospiral vX.Y.Z").
 # 
 echo "Generating logo";
-echo -n "$3" > temp.hex && \
-./"$1" -pgr -i temp.hex -o "$2" && \
-rm temp.hex;
+./"$1" -pgrS "$3" -o "$2";
