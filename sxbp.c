@@ -483,28 +483,6 @@ int main(int argc, char* argv[]) {
     struct arg_lit* render = arg_lit0(
         "r", "render", "render a spiral to an image"
     );
-    struct arg_lit* perfect = arg_lit0(
-        "D", "disable-perfection", "allow unlimited optimisations"
-    );
-    struct arg_int* perfect_threshold = arg_int0(
-        "d", "perfection-threshold", NULL, "set optimisation threshold"
-    );
-    struct arg_int* total_lines = arg_int0(
-        "t", "total-lines", NULL, "total number of lines to plot to"
-    );
-    struct arg_int* line_limit = arg_int0(
-        "l", "line-limit", NULL, "plot this many more lines than currently solved"
-    );
-    struct arg_int* save_every = arg_int0(
-        "s", "save-every", NULL, "save to file every this number of lines solved"
-    );
-    struct arg_str* image_format = arg_str0(
-        "f", "image-format", "FORMAT", "which image format to render to (pbm/png)"
-    );
-    struct arg_str* input_string = arg_str0(
-        "S", "string", "STRING",
-        "use the given STRING as input data for the spiral"
-    );
     // input file path option
     struct arg_file* input = arg_file0(
         "i", "input", NULL, "input file path"
@@ -513,14 +491,38 @@ int main(int argc, char* argv[]) {
     struct arg_file* output = arg_file0(
         "o", "output", NULL, "output file path"
     );
+    struct arg_str* image_format = arg_str0(
+        "f", "image-format", "FORMAT",
+        "which image format to render to (pbm/png)"
+    );
+    struct arg_int* save_every = arg_int0(
+        "s", "save-every", NULL,
+        "save to file every this number of lines solved"
+    );
+    struct arg_str* input_string = arg_str0(
+        "S", "string", "STRING",
+        "use the given STRING as input data for the spiral"
+    );
+    struct arg_int* perfect_threshold = arg_int0(
+        "d", "perfection-threshold", NULL, "set optimisation threshold"
+    );
+    struct arg_lit* perfect = arg_lit0(
+        "D", "disable-perfection", "allow unlimited optimisations"
+    );
+    struct arg_int* line_limit = arg_int0(
+        "l", "line-limit", NULL,
+        "plot this many more lines than currently solved"
+    );
+    struct arg_int* total_lines = arg_int0(
+        "t", "total-lines", NULL, "total number of lines to plot to"
+    );
     // argtable boilerplate
     struct arg_end* end = arg_end(20);
     void* argtable[] = {
         help, version,
-        prepare, generate, render,
-        perfect, perfect_threshold, line_limit, total_lines, save_every,
-        image_format, input_string,
-        input, output, end,
+        prepare, generate, render, input, output, image_format,
+        save_every, input_string,
+        perfect_threshold, perfect, line_limit, total_lines, end,
     };
     const char* program_name = "sxbp";
     // check argtable members were allocated successfully
