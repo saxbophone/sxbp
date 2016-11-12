@@ -21,21 +21,21 @@ Note that as well as being under the same copyleft protections as the GPL Licens
 Once sxbp is installed, run `sxbp -h` for usage information, or look here:
 
 ```
-Usage: sxbp [-hvpgrD] [-d <int>] [-l <int>] [-t <int>] [-s <int>] [-f FORMAT] [-S STRING] [-i <file>] [-o <file>]
+Usage: sxbp [-hvpgrD] [-i <file>] [-o <file>] [-f FORMAT] [-s <int>] [-S STRING] [-d <int>] [-l <int>] [-t <int>]
   -h, --help                       show this help and exit
   -v, --version                    show version of program and library, then exit
   -p, --prepare                    prepare a spiral from raw binary data
   -g, --generate                   generate the lengths of a spiral's lines
   -r, --render                     render a spiral to an image
-  -D, --disable-perfection         allow unlimited optimisations
-  -d, --perfection-threshold=<int> set optimisation threshold
-  -l, --line-limit=<int>           plot this many more lines than currently solved
-  -t, --total-lines=<int>          total number of lines to plot to
-  -s, --save-every=<int>           save to file every this number of lines solved
-  -f, --image-format=FORMAT        which image format to render to (pbm/png)
-  -S, --string=STRING              use the given STRING as input data for the spiral
   -i, --input=<file>               input file path
   -o, --output=<file>              output file path
+  -f, --image-format=FORMAT        which image format to render to (pbm/png)
+  -s, --save-every=<int>           save to file every this number of lines solved
+  -S, --string=STRING              use the given STRING as input data for the spiral
+  -d, --perfection-threshold=<int> set optimisation threshold
+  -D, --disable-perfection         allow unlimited optimisations
+  -l, --line-limit=<int>           plot this many more lines than currently solved
+  -t, --total-lines=<int>          total number of lines to plot to
 ```
 
 ## Dependencies
