@@ -7,6 +7,8 @@
 #  SAXBOSPIRAL_INCLUDE_DIRS - the SAXBOSPIRAL include directory
 #  SAXBOSPIRAL_LIBRARIES - Link these to use SAXBOSPIRAL
 
+# TODO: Get it to find the actual correct version of libsaxbospiral
+
 find_path(
     SAXBOSPIRAL_INCLUDE_DIR
     NAMES "saxbospiral/saxbospiral.h"
@@ -22,8 +24,6 @@ find_library(
 set(SAXBOSPIRAL_INCLUDE_DIRS ${SAXBOSPIRAL_INCLUDE_DIR})
 set(SAXBOSPIRAL_LIBRARIES ${SAXBOSPIRAL_LIBRARY})
 
-# handle the QUIETLY and REQUIRED arguments and set JSONCPP_FOUND to TRUE
-# if all listed variables are TRUE, hide their existence from configuration view
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     saxbospiral DEFAULT_MSG SAXBOSPIRAL_INCLUDE_DIR SAXBOSPIRAL_LIBRARY

@@ -66,7 +66,7 @@ endif()
 # add custom dependencies directory
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # libsaxbospiral
-find_package(Saxbospiral 0.21 EXACT REQUIRED)
+find_package(Saxbospiral 0.22 EXACT REQUIRED)
 include_directories(${SAXBOSPIRAL_INCLUDE_DIR})
 # Argtable
 find_package(Argtable REQUIRED)
