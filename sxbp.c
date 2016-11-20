@@ -130,14 +130,16 @@ static bool buffer_to_file(sxbp_buffer_t* buffer, FILE* file_handle) {
  */
 static const char* error_code_string(sxbp_status_t error) {
     switch(error) {
+        case SXBP_OPERATION_OK:
+            return "OPERATION_OK (NO ERROR)";
         case SXBP_OPERATION_FAIL:
             return "OPERATION_FAIL";
         case SXBP_MALLOC_REFUSED:
             return "MALLOC_REFUSED";
         case SXBP_IMPOSSIBLE_CONDITION:
             return "IMPOSSIBLE_CONDITION";
-        case SXBP_OPERATION_OK:
-            return "OPERATION_OK (NO ERROR)";
+        case SXBP_NOT_IMPLEMENTED:
+            return "NOT IMPLEMENTED";
         case SXBP_STATE_UNKNOWN:
         default:
             return "UNKNOWN ERROR";
@@ -325,7 +327,18 @@ static bool run(
         (strcmp(image_format, "") != 0)
     ) {
         if(strcmp(image_format, "png") == 0) {
-            default_render_mode = RENDER_MODE_PNG;
+            // check that PNG support is enabled in libsaxbospiral
+            if(SXBP_PNG_SUPPORT == true) {
+                default_render_mode = RENDER_MODE_PNG;
+            } else {
+                // otheriwse, print an error message and return false
+                fprintf(
+                    stderr,
+                    "The loaded instance of libsaxbospiral has not been "
+                    "compiled with PNG output support.\n"
+                );
+                return false;
+            }
         } else if(strcmp(image_format, "pbm") == 0) {
             // No-op as it's already set to PBM format
             NULL;
