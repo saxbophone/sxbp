@@ -44,7 +44,7 @@ You will need:
 
 - A compiler that can compile ISO C99 code
 - [Cmake](https://cmake.org/) - v3.0 or newer
-- [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral) - v0.20.x
+- [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral) - v0.x (check `CMakeLists.txt` for exact version, this changes frequently)
 - [Argtable 2](http://argtable.sourceforge.net/) - must use v2, v1 and v3 will not work
 
 > ### Note:
