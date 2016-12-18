@@ -66,15 +66,15 @@ endif()
 # add custom dependencies directory
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # libsaxbospiral
-find_package(Saxbospiral 0.22 EXACT REQUIRED)
-include_directories(${SAXBOSPIRAL_INCLUDE_DIR})
+find_package(SXBP 0.22 EXACT REQUIRED)
+include_directories(${SXBP_INCLUDE_DIR})
 # Argtable
 find_package(Argtable REQUIRED)
 include_directories(${ARGTABLE_INCLUDE_DIR})
 
 add_executable(sxbp sxbp.c)
 
-target_link_libraries(sxbp ${SAXBOSPIRAL_LIBRARY} ${ARGTABLE_LIBRARY})
+target_link_libraries(sxbp ${SXBP_LIBRARY} ${ARGTABLE_LIBRARY})
 
 install(PROGRAMS sxbp DESTINATION bin)
 

@@ -28,13 +28,13 @@
 #include <string.h>
 
 #include <argtable2.h>
-#include <saxbospiral-0.22/saxbospiral.h>
-#include <saxbospiral-0.22/initialise.h>
-#include <saxbospiral-0.22/solve.h>
-#include <saxbospiral-0.22/serialise.h>
-#include <saxbospiral-0.22/render.h>
-#include <saxbospiral-0.22/render_backends/backend_pbm.h>
-#include <saxbospiral-0.22/render_backends/backend_png.h>
+#include <sxbp-0/saxbospiral.h>
+#include <sxbp-0/initialise.h>
+#include <sxbp-0/solve.h>
+#include <sxbp-0/serialise.h>
+#include <sxbp-0/render.h>
+#include <sxbp-0/render_backends/backend_pbm.h>
+#include <sxbp-0/render_backends/backend_png.h>
 
 
 #ifdef __cplusplus

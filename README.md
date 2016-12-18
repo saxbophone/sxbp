@@ -2,11 +2,11 @@
 
 Experimental generation of 2D spiralling lines based on input binary data.
 
-This is the command-line-interface for [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral).
+This is the command-line-interface for [libsxbp](https://github.com/saxbophone/libsxbp).
 
 ## Licensing
 
-sxbp, like libsaxbospiral is released under version **3.0** of the **GNU Affero General Public License** (AGPLv3).
+sxbp, like libsxbp is released under version **3.0** of the **GNU Affero General Public License** (AGPLv3).
 
 A full verbatim of this license may be found in the [LICENSE](LICENSE) file in this repository. *You should almost certainly read it*. If for some reason you have not received this file, you can view a copy of the license at [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).
 
@@ -14,7 +14,7 @@ Note that as well as being under the same copyleft protections as the GPL Licens
 
 > ### Note:
 
-> I wholeheartedly don't recommend integrating *this* program into your software, that is what libsaxbospiral is for. You can integrate sxbp anyway if you want, but it's generally not a good idea...
+> I wholeheartedly don't recommend integrating *this* program into your software, that is what libsxbp is for. You can integrate sxbp anyway if you want, but it's generally not a good idea...
 
 ## Usage
 
@@ -44,7 +44,7 @@ You will need:
 
 - A compiler that can compile ISO C99 code
 - [Cmake](https://cmake.org/) - v3.0 or newer
-- [libsaxbospiral](https://github.com/saxbophone/libsaxbospiral) - v0.20.x
+- [libsxbp](https://github.com/saxbophone/libsxbp) - v0.x (check `CMakeLists.txt` for exact version, this changes frequently)
 - [Argtable 2](http://argtable.sourceforge.net/) - must use v2, v1 and v3 will not work
 
 > ### Note:
