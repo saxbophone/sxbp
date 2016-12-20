@@ -2,7 +2,7 @@
  * This source file forms sxbp, a command-line program which generates images of
  * experimental 2D spiral-like shapes in PBM format, based on input binary data.
  *
- * It uses libsaxbospiral to achieve this, a library available under the same
+ * It uses libsxbp to achieve this, a library available under the same
  * licensing terms as this program.
  *
  *
@@ -28,13 +28,13 @@
 #include <string.h>
 
 #include <argtable2.h>
-#include <saxbospiral-0.22/saxbospiral.h>
-#include <saxbospiral-0.22/initialise.h>
-#include <saxbospiral-0.22/solve.h>
-#include <saxbospiral-0.22/serialise.h>
-#include <saxbospiral-0.22/render.h>
-#include <saxbospiral-0.22/render_backends/backend_pbm.h>
-#include <saxbospiral-0.22/render_backends/backend_png.h>
+#include <sxbp-0/saxbospiral.h>
+#include <sxbp-0/initialise.h>
+#include <sxbp-0/solve.h>
+#include <sxbp-0/serialise.h>
+#include <sxbp-0/render.h>
+#include <sxbp-0/render_backends/backend_pbm.h>
+#include <sxbp-0/render_backends/backend_png.h>
 
 
 #ifdef __cplusplus
@@ -327,14 +327,14 @@ static bool run(
         (strcmp(image_format, "") != 0)
     ) {
         if(strcmp(image_format, "png") == 0) {
-            // check that PNG support is enabled in libsaxbospiral
+            // check that PNG support is enabled in libsxbp
             if(SXBP_PNG_SUPPORT == true) {
                 default_render_mode = RENDER_MODE_PNG;
             } else {
                 // otheriwse, print an error message and return false
                 fprintf(
                     stderr,
-                    "The loaded instance of libsaxbospiral has not been "
+                    "The loaded instance of libsxbp has not been "
                     "compiled with PNG output support.\n"
                 );
                 return false;
@@ -557,7 +557,7 @@ int main(int argc, char* argv[]) {
     // if we asked for the version, show it
     if(version->count > 0) {
         printf(
-            "%s %s (using libsaxbospiral %s)\n",
+            "%s %s (using libsxbp %s)\n",
             program_name, SXBP_VERSION_STRING, LIB_SXBP_VERSION.string
         );
         status_code = 0;
