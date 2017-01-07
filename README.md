@@ -6,7 +6,7 @@ This is the command-line-interface for [libsxbp](https://github.com/saxbophone/l
 
 ## Licensing
 
-sxbp, like libsxbp is released under version **3.0** of the **GNU Affero General Public License** (AGPLv3).
+sxbp is released under version **3.0** of the **GNU Affero General Public License** (AGPLv3).
 
 A full verbatim of this license may be found in the [LICENSE](LICENSE) file in this repository. *You should almost certainly read it*. If for some reason you have not received this file, you can view a copy of the license at [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).
 
@@ -73,9 +73,3 @@ Assuming your PATH is configured correctly, sxbp should now be available to you 
 > ### Note:
 
 > This may or may not require admin priveleges. Typically does on GNU/Linux, typically doesn't on Mac OSX *with Homebrew installed* and *probably doesn't* on Microsoft Windows.
-
-## Contributions and Transfer of Copyright
-
-I've yet to create a CLA (Contributor License Agreement), but I will likely be doing so soon and definitely when I start getting external contributions.
-
-This will likely involve aggreeing of transfer of copyright ownership of contributed work to me (Joshua Saxby/@saxbophone), so I can be in the best position to defend copyright claims against me and also allow for dual-licensing should someone find this commercially valuable.

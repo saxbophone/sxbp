@@ -2,8 +2,8 @@
  * This source file forms sxbp, a command-line program which generates images of
  * experimental 2D spiral-like shapes in PBM format, based on input binary data.
  *
- * It uses libsxbp to achieve this, a library available under the same
- * licensing terms as this program.
+ * It uses libsxbp to achieve this, a library freely available under permissive
+ * open-source terms.
  *
  *
  *
