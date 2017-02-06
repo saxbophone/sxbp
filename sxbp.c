@@ -195,7 +195,7 @@ struct user_data_t {
     // whether to render to sxp, pbm or png format
     enum spiral_render_mode_t render_mode;
     const char* file_path; // path of file to save to
-    uint64_t save_line_interval; // save file every this number of lines
+    uint32_t save_line_interval; // save file every this number of lines
 };
 
 /*
@@ -210,7 +210,7 @@ struct user_data_t {
  * mode or not, and on how often it is to save output
  */
 static void plot_spiral_callback(
-    sxbp_spiral_t* spiral, uint64_t latest_line, uint64_t target_line,
+    sxbp_spiral_t* spiral, uint32_t latest_line, uint32_t target_line,
     void* user_data_void_pointer
 ) {
     // cast void pointer to our user data type
@@ -379,15 +379,15 @@ static bool run(
          * arguments.
          */
         // first, check the line_limit argument
-        uint64_t lines_to_plot;
+        uint32_t lines_to_plot;
         // set to solved count + line limit if set, else spiral size
         lines_to_plot = (
             (line_limit != -1) ? (spiral.solved_count + line_limit) : spiral.size
         );
         // set to total_lines if set and less than current amount
         lines_to_plot = (
-            (total_lines != -1 && (uint64_t)total_lines < lines_to_plot) ?
-            (uint64_t)total_lines : lines_to_plot
+            (total_lines != -1 && (uint32_t)total_lines < lines_to_plot) ?
+            (uint32_t)total_lines : lines_to_plot
         );
         // we must plot the unsolved lines from spiral file
         sxbp_status_t errors;
