@@ -199,12 +199,6 @@ struct user_data_t {
 };
 
 /*
- * disable GCC warning about the unused parameter, as this is a callback it must
- * include all arguments specified by the library prototype, even if not used
- */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-/*
  * private function - callback handler for plot_spiral()
  * saves current spiral state to .sxp or .pbm depending on whether in render
  * mode or not, and on how often it is to save output
@@ -261,8 +255,6 @@ static void plot_spiral_callback(
         }
     }
 }
-// re-enable all warnings
-#pragma GCC diagnostic pop
 
 /*
  * function responsible for actually doing the main work, called by main with
