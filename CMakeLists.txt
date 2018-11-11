@@ -40,24 +40,40 @@ add_definitions(-DSXBP_VERSION_STRING=${SXBP_ESCAPED_VERSION_STRING})
 include(CheckCCompilerFlag)
 
 function(enable_c_compiler_flag_if_supported flag)
+    message(STATUS "Checking if compiler supports warning flag '${flag}'")
     string(FIND "${CMAKE_C_FLAGS}" "${flag}" flag_already_set)
     if(flag_already_set EQUAL -1)
         check_c_compiler_flag("${flag}" flag_supported)
         if(flag_supported)
+            message(STATUS "Enabling warning flag '${flag}'")
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}" PARENT_SCOPE)
         endif()
     endif()
+    unset(flag_already_set CACHE)
+    unset(flag_supported CACHE)
 endfunction()
 
 # enable extra flags (warnings) if we're not in release mode
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "")
-    message("Warnings Enabled")
+    message(STATUS "Warnings Enabled")
     # enable all warnings about 'questionable constructs'
     enable_c_compiler_flag_if_supported("-Wall")
     # issue 'pedantic' warnings for strict ISO compliance
     enable_c_compiler_flag_if_supported("-pedantic")
     # enable 'extra' strict warnings
     enable_c_compiler_flag_if_supported("-Wextra")
+    # enable enforcing of strict function prototypes (e.g. no empty parentheses)
+    enable_c_compiler_flag_if_supported("-Wstrict-prototypes")
+    # enable warnings on missing prototypes of global functions
+    enable_c_compiler_flag_if_supported("-Wmissing-prototypes")
+    # enable sign and type conversion warnings
+    enable_c_compiler_flag_if_supported("-Wconversion")
+    # enable warnings about C11 features not supported in C99
+    enable_c_compiler_flag_if_supported("-Wc99-c11-compat")
+    # enable warnings about mistakes in Doxygen documentation
+    enable_c_compiler_flag_if_supported("-Wdocumentation")
+    # turn off spurious warnings from clang about missing field initialisers
+    enable_c_compiler_flag_if_supported("-Wno-missing-field-initializers")
     # convert all warnings into errors
     enable_c_compiler_flag_if_supported("-Werror")
 endif()
